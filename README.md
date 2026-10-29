@@ -1,4 +1,6 @@
-# QPaper Studio v4
+# QPaper Studio 
+
+## [live demo](http://13.236.178.46/)
 
 ## Recommended deployment: Docker Compose (AWS EC2 / any VPS)
 
