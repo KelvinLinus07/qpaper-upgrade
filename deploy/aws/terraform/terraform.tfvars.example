@@ -1,0 +1,12 @@
+region = "ap-south-1"
+environment = "production"
+domain_name = "papers.example.com"
+hosted_zone_name = "example.com"
+image_tag = "bootstrap"
+api_desired_count = 1
+db_instance_class = "db.t4g.micro"
+db_multi_az = false
+ses_from_email = ""
+admin_bootstrap_secret_arn = ""
+allow_self_registration = false
+enable_deletion_protection = true

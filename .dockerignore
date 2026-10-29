@@ -1,0 +1,15 @@
+node_modules/
+**/node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.git/
+server/
+deploy/aws/
+**/.terraform/
+**/*.tfstate*
+backups/
+*.zip
+.DS_Store

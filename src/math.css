@@ -1,0 +1,52 @@
+/* Equation tools are opt-in and do not change normal text entry. */
+.math-field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
+.math-field > input,.math-field > textarea{width:100%;min-width:0;box-sizing:border-box}
+.math-field-trigger{align-self:flex-end;border:1px solid rgba(0,201,177,.36);border-radius:6px;background:rgba(0,201,177,.09);color:#28d6c1;padding:3px 9px;line-height:1.4;font-size:11px;font-weight:650;cursor:pointer}
+.math-field-trigger:hover{background:rgba(0,201,177,.2)}
+.math-field-trigger span{font-size:14px;margin-right:3px}
+.math-field-small .math-field-trigger{font-size:10px;padding:2px 5px}
+.math-field-small{flex:1;min-width:0}
+.q-pair-row{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) 26px}
+.q-option-row{min-width:0}
+.q-top-row .math-field{flex:1}
+.question-answer-field .math-field{width:100%}
+.question-answer-field .math-field textarea{background:var(--bg-3);color:var(--text);border:1px solid var(--border-2);border-radius:6px;padding:8px;font-size:12px;resize:vertical}
+/* Question bank uses the light theme, unlike the dark editor. */
+.field-new .math-field input,.field-new .math-field textarea{background:white;color:#172339;border:1px solid #cbd5e1;border-radius:8px;padding:10px;font:inherit}
+.field-new .math-field-trigger{color:#4338ca;background:#eef2ff;border-color:#c7d2fe}
+.math-dialog-backdrop{position:fixed;inset:0;z-index:100000;background:rgba(7,17,37,.76);display:flex;align-items:center;justify-content:center;padding:16px}
+.math-dialog{width:min(680px,100%);max-height:min(92vh,850px);overflow:auto;background:#fff;color:#122039;border-radius:16px;box-shadow:0 20px 65px rgba(0,0,0,.4);font-family:Inter,system-ui,sans-serif}
+.math-dialog-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:20px 24px;border-bottom:1px solid #e2e8f0}
+.math-dialog-header strong{font-size:18px;color:#14223b}
+.math-dialog-header p{margin-top:5px;color:#64748b;font-size:12px}
+.math-dialog-header button{border:0;background:#f1f5f9;border-radius:9px;cursor:pointer;color:#334155;font-size:23px;width:34px;height:34px;line-height:1}
+.math-dialog-content{padding:18px 24px;display:flex;flex-direction:column;gap:12px}
+.math-dialog-label{display:block;font-size:12px;font-weight:750;color:#475569}
+.math-snippet-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px}
+.math-snippet-grid button{padding:7px 11px;border:1px solid #cbd5e1;border-radius:7px;background:#f8fafc;color:#334155;font-size:12px;cursor:pointer}
+.math-snippet-grid button:hover{border-color:#6366f1;background:#eef2ff;color:#3730a3}
+.math-dialog-content textarea{width:100%;background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;border-radius:10px;padding:12px;resize:vertical;font:13px/1.6 ui-monospace,Menlo,Consolas,monospace;min-height:80px}
+.math-dialog-content textarea:focus{outline:2px solid #818cf8}
+.math-display-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;cursor:pointer}
+.math-display-toggle input{accent-color:#4f46e5}
+.math-live-preview{min-height:98px;padding:24px 16px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;overflow-x:auto;text-align:center;color:#111827}
+.math-live-preview .katex-display{margin:0}
+.math-live-placeholder,.math-dialog-help{font-size:12px;color:#64748b}
+.math-live-error{color:#b91c1c;text-align:left;overflow-wrap:anywhere;font-size:12px}
+.math-dialog-actions{display:flex;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid #e2e8f0}
+.math-dialog-actions button{padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer}
+.math-dialog-cancel{border:1px solid #cbd5e1;background:white;color:#334155}
+.math-dialog-submit{border:1px solid #4338ca;background:#4f46e5;color:white}
+.math-dialog-submit:disabled{opacity:.45;cursor:not-allowed}
+/* Applied to the same Preview React tree for the browser and the PDF printer. */
+.paper-math-inline{display:inline-block;vertical-align:baseline;max-width:100%}
+.paper-math-display{display:block;width:100%;overflow-x:auto;overflow-y:hidden;margin:.45em 0;text-align:center;break-inside:avoid}
+.paper-math-display .katex-display{margin:.3em 0}
+.paper-math-invalid{font-family:monospace;color:#ad2946;font-size:.9em;overflow-wrap:anywhere}
+.pv-wrapper .katex{font-size:1.07em}
+@media(max-width:640px){.math-dialog-header{padding:16px}.math-dialog-content{padding:15px}.math-dialog-actions{padding:14px 16px}.math-field-small .math-field-trigger{font-size:0;padding:4px 6px}.math-field-small .math-field-trigger span{font-size:15px;margin:0}}
+@media print{
+ .paper-math-inline,.paper-math-display{overflow:visible!important;max-width:100%!important;color:#000!important}
+ .paper-math-display{break-inside:avoid!important;page-break-inside:avoid!important}
+ .paper-print-modal .katex{color:#000!important}
+}

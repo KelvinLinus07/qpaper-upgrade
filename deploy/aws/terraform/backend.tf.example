@@ -1,0 +1,11 @@
+# Enable AFTER creating an encrypted, private S3 state bucket and a lockfile-capable backend.
+# Migrate local state with: terraform init -migrate-state
+# terraform {
+#   backend "s3" {
+#     bucket       = "REPLACE-STATE-BUCKET"
+#     key          = "qpaper/production.tfstate"
+#     region       = "ap-south-1"
+#     encrypt      = true
+#     use_lockfile = true
+#   }
+# }

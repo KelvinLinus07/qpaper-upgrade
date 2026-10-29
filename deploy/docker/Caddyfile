@@ -1,0 +1,20 @@
+# :80 for local HTTP testing; a real hostname (e.g. papers.example.com)
+# enables automatic HTTPS and certificate renewal. Only Caddy exposes ports.
+{$SITE_ADDRESS} {
+    encode zstd gzip
+
+    @api path /api /api/*
+    handle @api {
+        reverse_proxy api:4000
+    }
+
+    handle {
+        reverse_proxy web:80
+    }
+
+    header {
+        -Server
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+}

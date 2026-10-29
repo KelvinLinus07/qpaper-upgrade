@@ -1,0 +1,157 @@
+# QPaper Studio — standalone Docker Compose deployment.
+# Run: ./deploy/docker/setup.sh && docker compose up -d --build
+# The ONLY publicly exposed service is Caddy (ports 80/443 in production).
+name: qpaper-studio
+
+x-api-build: &api-build
+  context: ./server
+  dockerfile: Dockerfile.compose
+
+x-api-env: &api-env
+  NODE_ENV: production
+  PORT: "4000"
+  DB_HOST: db
+  DB_PORT: "5432"
+  DB_NAME: ${POSTGRES_DB:-qpaper}
+  DB_USER: ${POSTGRES_USER:-qpaper}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+  DB_POOL_MAX: ${DB_POOL_MAX:-10}
+  JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET (32+ chars) in .env}
+  APP_URL: ${APP_URL:?Set APP_URL in .env}
+  CLIENT_ORIGIN: ${APP_URL:?Set APP_URL in .env}
+  COOKIE_SECURE: ${COOKIE_SECURE:-true}
+  TRUST_PROXY_HOPS: "1"
+  ALLOW_SELF_REGISTRATION: ${ALLOW_SELF_REGISTRATION:-false}
+  AWS_REGION: ${AWS_REGION:-ap-south-1}
+  # Optional R2 uploads; use separate credentials so AWS SES continues working.
+  STORAGE_PROVIDER: ${STORAGE_PROVIDER:-s3}
+  R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
+  R2_ENDPOINT: ${R2_ENDPOINT:-}
+  R2_BUCKET: ${R2_BUCKET:-}
+  R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+  R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+  R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+  S3_BUCKET: ${S3_BUCKET:-}
+  S3_PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL:-}
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+  AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+  SES_FROM_EMAIL: ${SES_FROM_EMAIL:-}
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_SECURE: ${SMTP_SECURE:-false}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASS: ${SMTP_PASS:-}
+  SMTP_FROM: ${SMTP_FROM:-}
+  DEV_SHOW_RESET_LINKS: "false"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-qpaper}
+      POSTGRES_USER: ${POSTGRES_USER:-qpaper}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - private
+    healthcheck:
+      test: ["CMD-SHELL", 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+    logging: &logging
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  migrate:
+    image: qpaper-studio-api:local
+    build: *api-build
+    restart: "no"
+    command: ["node", "src/migrate.js"]
+    environment: *api-env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - private
+    security_opt:
+      - no-new-privileges:true
+    logging: *logging
+
+  api:
+    image: qpaper-studio-api:local
+    build: *api-build
+    restart: unless-stopped
+    environment: *api-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - private
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 7s
+      retries: 6
+      start_period: 20s
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    logging: *logging
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/docker/Dockerfile.web
+    image: qpaper-studio-web:local
+    restart: unless-stopped
+    networks:
+      - private
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+    security_opt:
+      - no-new-privileges:true
+    logging: *logging
+
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?Set SITE_ADDRESS in .env}
+    volumes:
+      - ./deploy/docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    networks:
+      - private
+    security_opt:
+      - no-new-privileges:true
+    logging: *logging
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  private:
+    driver: bridge

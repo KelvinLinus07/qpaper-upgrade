@@ -1,0 +1,102 @@
+/* One shared paper geometry for the live preview and the exported A4 PDF.
+   At 96 CSS pixels/inch, 210mm is 793.7px. The live pane scales the full
+   sheet down rather than narrowing the question table and reflowing text. */
+.pv-screen-page {width:100%; min-width:0;}
+.pv-wrapper .pv-paper {
+  width:210mm;
+  min-width:210mm;
+  min-height:297mm;
+  box-sizing:border-box;
+  padding:16mm 15mm;
+  margin:0 auto;
+  background:#fff;
+  color:#000;
+  border-radius:0;
+}
+.pv-wrapper .pv-institution-logo {display:block;max-width:75px;max-height:75px;object-fit:contain;margin:0 auto 10px}
+.pv-wrapper .pv-q-table {table-layout:fixed}
+.pv-wrapper .pv-th-qno {width:48px}
+.pv-wrapper .pv-th-marks {width:52px}
+.pv-wrapper .pv-q-text,
+.pv-wrapper .pv-option-val,
+.pv-wrapper .pv-match-tbl td,
+.pv-wrapper .pv-key-answer {white-space:pre-wrap;overflow-wrap:anywhere}
+.pv-wrapper .pv-q-img {max-width:100%;height:auto;object-fit:contain}
+.pv-wrapper .pv-q-row {break-inside:avoid;page-break-inside:avoid}
+.pv-wrapper .pv-section {break-inside:auto}
+.pv-wrapper .pv-sec-heading-row,.pv-wrapper .pv-sec-inst {break-after:avoid;page-break-after:avoid}
+.pv-wrapper .pv-q-table thead {display:table-header-group}
+.pv-wrapper .pv-gi-list {list-style:decimal outside}
+.pv-wrapper .pv-answer-title {font-size:15px;line-height:1.5;font-weight:bold;letter-spacing:.06em;text-align:center;margin:12px 0}
+.pv-wrapper .pv-key-answer {font-size:12px;line-height:1.7;margin-top:8px;color:#111}
+.pv-wrapper .pv-key-answer strong {text-decoration:underline}
+
+/* Modal is a separate print surface; the editor remains mounted underneath,
+   so opening/exporting PDFs never wipes out unsaved editor state. */
+.paper-print-modal {
+  position:fixed;inset:0;z-index:50000;
+  display:flex;flex-direction:column;
+  background:#e5eaf2;color:#14223b;
+  font-family:Inter,system-ui,sans-serif;
+}
+.paper-print-toolbar {
+  flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+  gap:18px;min-height:76px;background:#fff;border-bottom:1px solid #cbd5e1;
+  padding:14px 28px;box-shadow:0 2px 8px rgba(15,23,42,.05)
+}
+.paper-print-heading {display:flex;flex-direction:column;gap:3px}
+.paper-print-heading strong {font-size:16px;line-height:1.3}
+.paper-print-heading span {font-size:12px;color:#475569}
+.paper-print-actions {display:flex;gap:10px;flex-shrink:0}
+.paper-print-actions button {border-radius:9px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer}
+.paper-print-close {border:1px solid #cbd5e1;background:white;color:#334155}
+.paper-print-save {border:1px solid #4338ca;background:#4f46e5;color:#fff}
+.paper-print-save:disabled {opacity:.6;cursor:wait}
+.paper-print-scroll {flex:1;overflow:auto;min-height:0;padding:24px}
+.paper-print-modal .pv-print-page {width:210mm;max-width:none;margin:0 auto}
+.paper-print-modal .pv-paper {box-shadow:0 16px 45px rgba(15,23,42,.18)}
+@media(max-width:750px) {
+  .paper-print-toolbar {padding:12px 16px;flex-wrap:wrap}
+  .paper-print-heading span {font-size:11px}
+  .paper-print-actions {width:100%}
+  .paper-print-actions button {flex:1;padding:9px 10px}
+  .paper-print-scroll {padding:12px 0}
+}
+
+/* Chromium, Firefox and Safari's native PDF printer faithfully lay out
+   selectable text, Unicode glyphs, images, table borders and page breaks. */
+@page {size:A4;margin:16mm 15mm}
+@media print {
+  html,body {margin:0!important;padding:0!important;height:auto!important;overflow:visible!important;background:white!important}
+  body.qpaper-print-active > #root {display:none!important}
+  body.qpaper-print-active > .paper-print-modal {display:block!important}
+  .paper-print-modal {
+    position:static!important;inset:auto!important;overflow:visible!important;
+    width:auto!important;height:auto!important;min-height:0!important;
+    background:white!important;color:black!important;box-shadow:none!important;
+  }
+  .paper-print-toolbar {display:none!important}
+  .paper-print-scroll {display:block!important;overflow:visible!important;padding:0!important;height:auto!important}
+  .paper-print-modal .pv-print-page {display:block!important;width:auto!important;max-width:none!important;overflow:visible!important;margin:0!important}
+  .paper-print-modal .pv-paper {
+    display:block!important;box-sizing:border-box!important;
+    width:100%!important;min-width:0!important;min-height:0!important;
+    padding:0!important;margin:0!important;
+    box-shadow:none!important;border-radius:0!important;
+    zoom:1!important;transform:none!important;
+    font-family:'Times New Roman',Times,serif!important;
+    font-size:13px!important;color:#000!important;
+    print-color-adjust:exact;-webkit-print-color-adjust:exact;
+  }
+  .paper-print-modal .pv-q-row,
+  .paper-print-modal .pv-q-row td,
+  .paper-print-modal .pv-match-tbl tr {break-inside:avoid;page-break-inside:avoid}
+  .paper-print-modal .pv-q-table {width:100%;table-layout:fixed}
+  .paper-print-modal .pv-q-table thead {display:table-header-group}
+  .paper-print-modal .pv-header,
+  .paper-print-modal .pv-general-inst,
+  .paper-print-modal .pv-sec-heading-row,
+  .paper-print-modal .pv-sec-inst {break-inside:avoid;page-break-inside:avoid}
+  .paper-print-modal .pv-sec-heading-row,.paper-print-modal .pv-sec-inst {break-after:avoid;page-break-after:avoid}
+  .paper-print-modal .pv-q-img {max-width:100%!important;object-fit:contain}
+}

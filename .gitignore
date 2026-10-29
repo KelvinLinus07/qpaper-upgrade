@@ -1,0 +1,17 @@
+node_modules
+node_modules/
+dist/
+server/node_modules/
+*.log
+
+.env
+.env.*
+!.env.example
+**/.terraform/
+**/*.tfstate*
+**/tfplan
+*.pem
+.DS_Store
+
+# Compose backups and local deployment credentials
+backups/
